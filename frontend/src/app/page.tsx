@@ -1,4 +1,4 @@
-import UserPage from "../../component/UserPage";
+import UserPage from "../component/UserPage";
 import { SignedIn, SignedOut, SignIn } from "@clerk/nextjs";
 
 export default function Home() {
