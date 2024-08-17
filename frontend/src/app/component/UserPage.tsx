@@ -1,5 +1,5 @@
 'use client';
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { Box, Button, Card, CardContent, Container, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -70,36 +70,57 @@ export default function UserPage() {
     };
 
     return (
-        <Container>
-            <Typography variant="h4" gutterBottom>
-                User Posts
-            </Typography>
-            
-            <Box mb={4}>
-                <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    value={newPost}
-                    onChange={handlePostChange}
-                    label="What's on your mind?"
-                    variant="outlined"
+        <Box>
+            <Box
+                display={'flex'}
+                // width={'100%'}
+                height={'70px'}
+                justifyContent={'space-between'}
+                padding={'20px'}
+                sx={{ width: '100%' }}
+            >   
+                <Typography 
+                    variant={"h6"}
+                    color={'grey'}
+                >
+                    Petsocial
+                </Typography>
+                <UserButton 
+                    showName 
                 />
-                <Button variant="contained" color="primary" onClick={handlePostSubmit} sx={{ mt: 2 }}>
-                    Post
-                </Button>
             </Box>
-            
-            {posts.map((post) => (
-                <Card key={post.id} sx={{ mb: 2 }}>
-                <CardContent>
-                    <Typography variant="body1">{post.content}</Typography>
-                    <Typography variant="caption" color="textSecondary">
-                        {new Date(post.createdAt).toLocaleDateString()}
-                    </Typography>
-                </CardContent>
-                </Card>
-            ))}
-        </Container>
+            <Container sx={{ mt: 4 }} maxWidth='xs'>
+                <Typography variant="h4" gutterBottom>
+                    User Posts
+                </Typography>
+                
+                <Box mb={4}>
+                    <TextField
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={newPost}
+                        onChange={handlePostChange}
+                        label="What's on your mind?"
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                    />
+                    <Button variant="contained" color="primary" onClick={handlePostSubmit} sx={{ mt: 2 }}>
+                        Post
+                    </Button>
+                </Box>
+                
+                {posts.map((post) => (
+                    <Card key={post.id} sx={{ mb: 2 }}>
+                    <CardContent>
+                        <Typography variant="body1">{post.content}</Typography>
+                        <Typography variant="caption" color="textSecondary">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                        </Typography>
+                    </CardContent>
+                    </Card>
+                ))}
+            </Container>
+        </Box>
     );
 }
