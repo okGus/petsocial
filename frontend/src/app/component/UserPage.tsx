@@ -8,6 +8,8 @@ interface Post {
   userId: string;
   content: string;
   created_at: string;
+  likes: number;
+  dislikes: number;
 }
 
 export default function UserPage() {
