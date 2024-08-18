@@ -1,3 +1,6 @@
+'use client'
+import Image from "next/image";
+import axios from "axios";
 import { Box, Button, Container, Typography } from "@mui/material";
 import UserPage from "./component/UserPage";
 import { SignedIn, SignedOut } from "@clerk/nextjs";

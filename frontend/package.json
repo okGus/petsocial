@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "axios": "^1.7.4",
     "@clerk/nextjs": "^5.3.1",
     "@clerk/themes": "^2.1.20",
     "@emotion/react": "^11.13.0",

@@ -15,6 +15,8 @@ export default function UserPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [newPost, setNewPost] = useState<string>('');
 
+    const [updateCounter, setUpdateCounter] = useState(0);
+
     useEffect(() => {
         if (user) {
             const fetchPosts = async () => {
@@ -24,7 +26,6 @@ export default function UserPage() {
                         throw new Error('Failed to fetch posts');
                     }
                     const data: Post[] = await response.json();
-                    // console.log(data);
                     setPosts(data);
                 } catch (error) {
                     console.error('Failed to fetch posts:', error);
@@ -33,7 +34,7 @@ export default function UserPage() {
 
             fetchPosts();
         }
-    }, [user]);
+    }, [user, updateCounter]);
 
     const handlePostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNewPost(event.target.value);
@@ -48,7 +49,7 @@ export default function UserPage() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ userId, content: newPost }),
+                    body: JSON.stringify({ userId, content: newPost, likes: 0, dislikes: 0 }),
                 });
                 if (!response.ok) {
                     throw new Error('Failed to create post');
@@ -61,6 +62,8 @@ export default function UserPage() {
                         userId,
                         content: newPost,
                         created_at: result.createdAt,
+                        likes: 0,
+                        dislikes: 0,
                     },
                 ]);
                 setNewPost('');
@@ -69,6 +72,78 @@ export default function UserPage() {
             }
         }
     };
+
+    const handleLike = async (postId: string) => {
+        try {
+            // Optimistically update the UI
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId ? { ...post, likes: post.likes + 1 } : post
+                )
+            );
+    
+            // Send the API request to update likes
+            const response = await fetch(`/api/posts`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postId: postId, action: 'like' }),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to like post');
+            }
+    
+            // Optionally, update the state with the new data from the backend
+            const updatedPost = await response.json();
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId ? updatedPost : post
+                )
+            );
+
+            setUpdateCounter((prev) => prev + 1);
+        } catch (error) {
+            console.error('Failed to like post:', error);
+        }
+    }
+
+    const handleDislike = async (postId: string) => {
+        try {
+            // Optimistically update the UI
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId ? { ...post, dislikes: post.dislikes - 1 } : post
+                )
+            );
+    
+            // Send the API request to update likes
+            const response = await fetch(`/api/posts`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ postId: postId, action: 'dislike' }),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to dislike post');
+            }
+    
+            // Optionally, update the state with the new data from the backend
+            const updatedPost = await response.json();
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId ? updatedPost : post
+                )
+            );
+
+            setUpdateCounter((prev) => prev + 1);
+        } catch (error) {
+            console.error('Failed to like post:', error);
+        }
+    }
 
     return (
         <Box>
@@ -118,6 +193,10 @@ export default function UserPage() {
                             {new Date(post.created_at).toLocaleDateString()}
                         </Typography>
                     </CardContent>
+                    <Typography variant="caption" color="textSecondary">{post.likes}</Typography>
+                    <Button variant="contained" sx={{ml: 10}} onClick={() => handleLike(post.id)}>Like</Button>
+                    <Typography variant="caption" color="textSecondary">{post.dislikes}</Typography>
+                    <Button variant="contained" sx={{ml: 10}} onClick={() => handleDislike(post.id)}>Dislike</Button>
                     </Card>
                 ))}
             </Container>
