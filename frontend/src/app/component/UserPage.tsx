@@ -2,6 +2,7 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Box, Button, Card, CardContent, Container, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface Post {
   id: string;
@@ -18,6 +19,23 @@ export default function UserPage() {
     const [newPost, setNewPost] = useState<string>('');
 
     const [updateCounter, setUpdateCounter] = useState(0);
+    const [recommendedOrder, setRecommendedOrder] = useState<string[]>([]);
+
+    const getRecommendations = async (postData: Post[]) => {
+        try {
+            //First get user ID from Clerk to send
+            const userId = user!.id;
+
+            const response = await axios.post('http://localhost:5000/api/recommend', {
+                userId: userId,
+                posts: postData
+              });
+
+            setRecommendedOrder(response.data);
+        } catch (error) {
+            console.error('Failed to fetch recommendations:', error);
+        }
+    }
 
     useEffect(() => {
         if (user) {
@@ -28,7 +46,18 @@ export default function UserPage() {
                         throw new Error('Failed to fetch posts');
                     }
                     const data: Post[] = await response.json();
+                    await getRecommendations(data);
+                    // Restucture the data with the recommendation model
                     setPosts(data);
+
+                    if (recommendedOrder.length > 0) {
+                        // Reorder posts based on recommendedOrder
+                        const reorderedPosts = [...posts].sort((a, b) => {
+                          return recommendedOrder.indexOf(a.content) - recommendedOrder.indexOf(b.content);
+                        });
+                        setPosts(reorderedPosts);
+                        console.log(posts)
+                      }
                 } catch (error) {
                     console.error('Failed to fetch posts:', error);
                 }
@@ -98,12 +127,6 @@ export default function UserPage() {
             }
     
             // Optionally, update the state with the new data from the backend
-            const updatedPost = await response.json();
-            setPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                    post.id === postId ? updatedPost : post
-                )
-            );
 
             setUpdateCounter((prev) => prev + 1);
         } catch (error) {
@@ -134,12 +157,6 @@ export default function UserPage() {
             }
     
             // Optionally, update the state with the new data from the backend
-            const updatedPost = await response.json();
-            setPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                    post.id === postId ? updatedPost : post
-                )
-            );
 
             setUpdateCounter((prev) => prev + 1);
         } catch (error) {
