@@ -4,8 +4,4 @@ adjusted to fit the environment of a social media website, to recommend posts ba
 Clerk is used for authentication, and MySQL for the database.
 
 
-TensorFlow Recommender Model -> Frontend to recommend post content
-      ^
-      |
-
-MySQL Database
+MySQL Database -> TensorFlow Recommender Model -> Frontend to recommend post content
