@@ -73,12 +73,7 @@ class PetSocialRecommender(tfrs.Model):
         user_embeddings = self.user_model(features['user_id'])  # (batch_size, embedding_dim)
         post_embeddings = self.post_model(content)  # (batch_size, embedding_dim)
 
-        # user_embeddings_squeezed = tf.squeeze(user_embeddings, axis=1)
-
-        # print(user_embeddings.shape, post_embeddings.shape)
-        # exit()
-
-        # Compute the loss
+        # Compute the retrieval loss
         loss = self.task(user_embeddings, post_embeddings)
         
         # Adjust the loss based on interactions
@@ -86,16 +81,26 @@ class PetSocialRecommender(tfrs.Model):
         positive_loss_weight = 1.0
         negative_loss_weight = 0.1
 
+        # Convert interaction strings to numeric weights
         interaction_weights = tf.where(
             interaction == 'like',
             tf.ones_like(interaction, dtype=tf.float32) * positive_loss_weight,
             tf.ones_like(interaction, dtype=tf.float32) * negative_loss_weight
         )
-
-        # Element-wise multiplication of loss and weights
+        
+        # Ensure that loss and weights are compatible
+        loss = tf.reduce_sum(loss)  # (batch_size,)
+        interaction_weights = tf.squeeze(interaction_weights)  # (batch_size,)
+        
+        # Apply the interaction weights to the loss
         weighted_loss = loss * interaction_weights
 
-        return tf.reduce_sum(weighted_loss) / tf.reduce_sum(interaction_weights)
+        # Normalize by the sum of weights
+        total_weight = tf.reduce_sum(interaction_weights)
+        normalized_loss = tf.reduce_sum(weighted_loss) / (total_weight + 1e-6)  # Added epsilon to avoid division by zero
+
+        return normalized_loss
+
 
 model = PetSocialRecommender()
 model.compile(optimizer=tf.keras.optimizers.Adagrad(learning_rate=0.1))
