@@ -7,7 +7,7 @@ interface Post {
   id: string;
   userId: string;
   content: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export default function UserPage() {
@@ -19,11 +19,12 @@ export default function UserPage() {
         if (user) {
             const fetchPosts = async () => {
                 try {
-                    const response = await fetch(`/api/posts/${user.id}`);
+                    const response = await fetch('/api/posts/');
                     if (!response.ok) {
                         throw new Error('Failed to fetch posts');
                     }
-                    const data = await response.json();
+                    const data: Post[] = await response.json();
+                    // console.log(data);
                     setPosts(data);
                 } catch (error) {
                     console.error('Failed to fetch posts:', error);
@@ -59,7 +60,7 @@ export default function UserPage() {
                         id: result.id, // UUID string
                         userId,
                         content: newPost,
-                        createdAt: result.createdAt,
+                        created_at: result.createdAt,
                     },
                 ]);
                 setNewPost('');
@@ -114,7 +115,7 @@ export default function UserPage() {
                     <CardContent>
                         <Typography variant="body1">{post.content}</Typography>
                         <Typography variant="caption" color="textSecondary">
-                            {new Date(post.createdAt).toLocaleDateString()}
+                            {new Date(post.created_at).toLocaleDateString()}
                         </Typography>
                     </CardContent>
                     </Card>

@@ -38,3 +38,27 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
     }
 }
+
+export async function GET(req: Request) {
+
+    try {
+        const connection = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USERNAME,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE,
+        });
+
+        const [rows] = await connection.execute(
+            'SELECT id, user_id, content, created_at FROM posts ORDER BY created_at DESC',
+        );
+
+        await connection.end();
+        // console.log('Fetched posts:', rows); // Log the result for debugging
+
+        return NextResponse.json(rows);
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
+    }
+}
