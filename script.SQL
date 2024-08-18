@@ -21,7 +21,7 @@ CREATE TABLE notifications (
 );
 
 CREATE TABLE posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,  -- UUIDs are typically 36 characters long,
     user_id VARCHAR(255),
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
