@@ -1,5 +1,4 @@
 import { Webhook, type WebhookRequiredHeaders } from 'svix';
-import { headers } from 'next/headers';
 import { type WebhookEvent } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise'
@@ -15,10 +14,7 @@ export async function POST(req: Request) {
     }
 
     // Get the headers
-    // const headerPayload = headers();
     const headerPayload = req.headers;
-    // console.log("Headers ****:", headerPayload);
-    console.log("Headers ####:", req.headers);
     const svix_id = headerPayload.get("svix-id");
     const svix_timestamp = headerPayload.get("svix-timestamp");
     const svix_signature = headerPayload.get("svix-signature");

@@ -4,7 +4,7 @@ import { Box, Button, Card, CardContent, Container, TextField, Typography } from
 import { useEffect, useState } from "react";
 
 interface Post {
-  id: number;
+  id: string;
   userId: string;
   content: string;
   createdAt: string;
@@ -56,10 +56,10 @@ export default function UserPage() {
                 setPosts((prevPosts) => [
                     ...prevPosts,
                     {
-                        id: result.id,
+                        id: result.id, // UUID string
                         userId,
                         content: newPost,
-                        createdAt: new Date().toISOString(),
+                        createdAt: result.createdAt,
                     },
                 ]);
                 setNewPost('');
@@ -73,7 +73,6 @@ export default function UserPage() {
         <Box>
             <Box
                 display={'flex'}
-                // width={'100%'}
                 height={'70px'}
                 justifyContent={'space-between'}
                 padding={'20px'}
